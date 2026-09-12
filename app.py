@@ -22,6 +22,16 @@ DEFAULT_PRICE = 1396.0       # 元/支
 DEFAULT_DAILY_USAGE = 3      # 支/天
 STANDARD_DAYS = [3, 7, 14]
 
+# Pilot地区（TEST版）
+PROVINCES = [
+    "北京",
+    "上海",
+    "广东",
+    "河南",
+    "浙江",
+    "山东"
+]
+
 POLICY = {
     "基本医保": {
         "rate": 0.70,
@@ -173,6 +183,21 @@ left, right = st.columns([1, 1.6])
 # 4. 左侧：输入与参数
 # -----------------------------
 with left:
+    st.markdown('<div class="section-title">地区选择</div>', unsafe_allow_html=True)
+
+    selected_province = st.selectbox(
+        "省份",
+        PROVINCES,
+        index=0
+    )
+
+    st.caption(
+        f"当前选择：{selected_province}。TEST版暂时共用同一套假设政策参数；"
+        "正式版将按省份自动匹配当地基本医保、大病医保、惠民保及商业保险规则。"
+    )
+
+    st.divider()
+
     st.markdown('<div class="section-title">基础治疗参数</div>', unsafe_allow_html=True)
 
     unit_price = st.number_input(
@@ -264,6 +289,7 @@ with right:
     )
 
     st.markdown('<div class="section-title">当前疗程结果</div>', unsafe_allow_html=True)
+    st.write(f"**当前地区：{selected_province}**")
 
     m1, m2, m3, m4 = st.columns(4)
     m1.metric("原始总费用", f"¥{current['原始总费用']:,.0f}")
@@ -361,8 +387,11 @@ with right:
     ]
     compare_df = pd.DataFrame(compare_rows)
 
+    compare_df.insert(0, "省份", selected_province)
+
     display_compare = compare_df[
         [
+            "省份",
             "治疗天数",
             "原始总费用",
             "基本医保支付",
@@ -457,4 +486,3 @@ st.caption(
     "免责声明：本工具为内部测试模型，仅用于演示支付路径及参数敏感性。"
     "所有假设政策参数均不代表真实医保、惠民保或商业保险条款，实际结算以当地政策及保险合同为准。"
 )
-
