@@ -1,0 +1,150 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>思福妥｜多层次保障支付模拟计算器</title><style>:root{--blue:#0b78b6;--deep:#061b2d;--green:#20c79f;--cyan:#2fd4f2;--gold:#f3c56b;--ink:#102334;--muted:#65788c;--line:#c9d9e8;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;color:var(--ink)}*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#061827 0 280px,#eef5f9 280px,#f8fbfd 100%)}button,input,select,textarea{font:inherit}button,.file-button{cursor:pointer;border:1px solid #bcd7e7;border-radius:8px;background:#0878b5;color:white;padding:11px 17px;font-weight:600}button:hover{filter:brightness(.94)}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #f3c56b;outline-offset:2px}.app{max-width:1240px;margin:auto;padding:0 22px 24px}.hero{padding:28px 0 25px;color:white;background:radial-gradient(ellipse at 85% 15%,#11607990,transparent 55%),linear-gradient(135deg,#061827,#08263f 50%,#063a58);box-shadow:0 0 0 22px #08263f}.brand{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:700;letter-spacing:1px}.badge{border:1px solid #f3c56b77;color:#fff1c7;border-radius:999px;padding:6px 12px;font-size:12px}h1{font-size:48px;line-height:1.22;margin:24px 0 10px;color:#d8fbff;letter-spacing:1px}h1 span{display:block;font-size:31px;margin-top:10px;color:#fff}h2{font-size:18px;margin:0 0 18px;line-height:1.5}h3{font-size:16px;margin-top:28px}.subtitle{color:#c0e9f6;margin:12px 0 20px}.path{border:1px solid #f3c56b99;background:linear-gradient(135deg,#f3fdff,#e6f6fc);color:#063a58;padding:15px 18px;border-radius:8px;font-weight:700;line-height:1.7}.disclaimer{font-size:12px;line-height:1.7;margin:14px 0 0;color:#d0dfeb}.toolbar{position:sticky;top:0;z-index:10;background:#f7fcfff5;backdrop-filter:blur(12px);padding:12px;display:flex;gap:10px;justify-content:center;border-bottom:1px solid var(--line);margin:18px -22px 24px}.tab{max-width:210px;flex:1;background:transparent;color:var(--muted);border:1px solid transparent}.tab.active{color:#063a58;background:linear-gradient(135deg,#e8fbff,#fff5dd);border-color:#9ee8f5}.section{display:none}.section.active{display:block}.layout{display:grid;grid-template-columns:minmax(300px,0.9fr) minmax(0,1.6fr);gap:20px}.card{background:#fff;border:1px solid #dce7ef;border-radius:12px;padding:23px;margin-bottom:20px;box-shadow:0 8px 24px #08365305}i{font-style:normal;font-size:12px;background:#e6f7fc;color:#067ba3;border-radius:6px;padding:5px;margin-right:8px;vertical-align:2px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:14px 12px}.field{min-width:0}.field.wide{grid-column:1/-1}label{display:block;color:#435c70;font-size:12px;line-height:1.5}input:not([type=checkbox]),select,textarea{width:100%;margin-top:6px;padding:10px 9px;border:1px solid #c9dbe8;border-radius:7px;background:#f7fbfd;color:var(--ink);min-width:0}textarea{min-height:70px;resize:vertical}input[type=checkbox]{accent-color:#0878b5;width:16px;height:16px;vertical-align:middle;margin-right:8px}input:disabled{opacity:.55}.note{font-size:12px;color:var(--muted);line-height:1.8}.check-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:12px 0;border-bottom:1px solid #ecf1f5}.history-row{margin:18px 0}.history-row strong{display:block;font-size:13px;margin-bottom:8px}.heading{display:flex;align-items:center;justify-content:space-between;gap:8px}.tag{color:#9b650d;background:#fff6df;padding:5px 10px;border-radius:99px;font-size:11px;white-space:nowrap}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px}.metric{background:#f6fafc;border:1px solid #e2ebf2;border-radius:8px;padding:17px 12px}.metric small{color:var(--muted);font-size:12px}.metric strong{display:block;font-size:26px;margin-top:8px;color:var(--blue);font-variant-numeric:tabular-nums}.metric.final{background:#edf9f5;border-color:#b6e6d7}.metric.final strong{color:#057647}.daily{margin-top:16px;padding:19px;background:linear-gradient(100deg,#e8f7ff,#effbf5);text-align:center;border-radius:8px;font-size:14px}.daily strong{font-size:27px;color:#057647;margin:0 8px}.daily small{display:block;color:#587889;margin-top:7px}.bar-row{margin:18px 0}.bar-label{display:flex;justify-content:space-between;gap:12px;font-size:13px;margin-bottom:8px}.bar-label strong{white-space:nowrap}.track{height:12px;background:#eff4f8;border-radius:8px;overflow:hidden}.fill{height:100%;border-radius:8px;background:#0b78b6;transition:width .18s}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;font-size:12px;white-space:nowrap}th,td{padding:13px 9px;text-align:right;border-bottom:1px solid #e2ebf2}th{background:#f2f7fa;color:#567084}th:first-child,td:first-child{text-align:left}.course-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.course{border:1px solid #dbe9f2;border-radius:8px;padding:16px 13px;background:#f9fcfe}.course strong{font-size:21px;color:#0b78b6;display:block;margin:12px 0}.course span{font-size:12px;color:var(--muted)}.course h3{margin:0;font-size:14px}.actions{display:flex;gap:10px;flex-wrap:wrap}.secondary{background:#fff;color:#45677f}.file-button input{display:none}.policy-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 20px}.tier-row{display:grid;grid-template-columns:1fr 1fr auto;gap:9px;align-items:end;margin:9px 0}.tier-row button{padding:9px;background:#fff;color:#a7493e;border-color:#efdad6}.tier-panel{margin-top:18px;padding-top:12px;border-top:1px solid #e2ebf2}.prose{max-width:900px;margin:0 auto;line-height:1.9}.prose p{font-size:14px;color:#435c70}footer{text-align:center;font-size:11px;color:#7f94a3;margin:32px 0 12px}#error{position:sticky;top:70px;z-index:11;background:#fff0ed;color:#9d2d1c;border:1px solid #ffc8ba;border-radius:8px;padding:14px;margin-bottom:15px}details{margin-top:14px}summary{cursor:pointer;color:#0b78b6;font-size:13px;margin-bottom:14px}@media(max-width:900px){.layout{grid-template-columns:1fr}.policy-grid{grid-template-columns:1fr}.hero h1{font-size:38px}.hero h1 span{font-size:25px}}@media(max-width:480px){.app{padding:0 14px 20px}.hero{box-shadow:0 0 0 14px #08263f}.toolbar{margin-left:-14px;margin-right:-14px}.card{padding:17px}.metrics{gap:6px}.metric{padding:13px 7px}.metric strong{font-size:19px}.course{padding:12px 8px}.course strong{font-size:18px}.brand{font-size:11px;letter-spacing:0}.badge{font-size:10px}.path{font-size:12px}.fields{gap:12px 8px}.bar-label{font-size:12px}}@media print{body{background:white}.hero{background:#063a58;box-shadow:none;print-color-adjust:exact}.toolbar,aside,.actions,footer{display:none!important}.layout{display:block}.section{display:none!important}#calculator{display:block!important}.card{break-inside:avoid;box-shadow:none}.hero h1{font-size:28px}.hero h1 span{font-size:22px}}
+</style></head><body>
+<div class="app"><header class="hero"><div class="brand">支付可及性 · 情景测算 <span class="badge">内部演示 · 待验证</span></div><h1>思福妥<span>多层次保障支付模拟计算器</span></h1><p class="subtitle">看清每一层保障，测算每一个疗程。</p><div class="path">原始治疗费用 → 基本医保 → 大病医保 → 惠民保 → 福享关爱 → 患者最终自付</div><p class="disclaimer">当前参数为演示假设，附件未提供正式待遇数据。仅测算所选药品费用，不包含其他治疗费用；不用于用药决策，实际赔付以核验后的政策、条款与结算为准。</p></header>
+<nav class="toolbar" aria-label="页面切换"><button class="tab active" data-tab="calculator">案例测算</button><button class="tab" data-tab="policy">政策与参数</button><button class="tab" data-tab="help">口径说明</button></nav>
+<div id="error" role="alert" hidden></div>
+<section id="calculator" class="section active"><div class="layout"><aside><div class="card"><h2><i>01</i>患者与治疗信息</h2><div id="patientForm" class="fields"></div><p class="note">省市及身份用于场景标识；切换后需在“政策与参数”配置对应规则，当前不会自动匹配地方待遇。</p></div><div class="card"><h2><i>02</i>保障参与情况</h2><div id="participation"></div><p class="note">“符合准入”表示已核对适应症、参保、既往症及项目条件。演示勾选不代表真实资格。</p></div><div class="card"><h2>年度累计输入</h2><p class="note">输入本次治疗前已累计的合规基数（扣起付线前）及已赔金额，均按各层责任单独记录。</p><div id="history"></div></div></aside>
+<main><div class="card"><div class="heading"><h2><i>03</i>模拟测算结果</h2><span class="tag">演示参数</span></div><p id="scenario" class="note"></p><div id="metrics" class="metrics"></div><div id="daily" class="daily"></div></div><div class="card"><h2>自付费用逐层变化</h2><div id="bars"></div></div><div class="card"><h2>四层支付明细</h2><div class="table-wrap"><table><thead><tr><th>支付层级</th><th>本次合规基数</th><th>本层支付</th><th>剩余自付</th></tr></thead><tbody id="breakdown"></tbody></table></div><div id="reasons" class="note"></div></div><div class="card"><h2>3 / 7 / 14 天疗程对比</h2><p class="note">各疗程为独立情景，使用相同治疗前累计数据；金额不相加。</p><div id="courses" class="course-grid"></div></div><div class="actions"><button id="exportCsv">导出测算 CSV</button><button id="print">打印 / 保存 PDF</button></div></main></div></section>
+<section id="policy" class="section"><div class="card"><div class="heading"><h2>政策来源与验证</h2><span class="tag">数值待补充</span></div><p>请按附件逐项补充。此处编辑会实时影响测算；省市、人群、产品的正式规则需分别核验。</p><div id="metadata" class="fields"></div></div><div id="layerForms" class="policy-grid"></div><div class="card"><h2>配置保存与载入</h2><p class="note">下载JSON保存当前全套参数和累计输入，供下次载入。上传配置只在本机读取，不发送患者或政策数据。</p><div class="actions"><button id="exportJson">下载当前配置 JSON</button><label class="file-button">载入配置 JSON<input id="importJson" type="file" accept=".json,application/json"></label><button id="reset" class="secondary">恢复演示参数</button></div><p id="fileStatus" role="status"></p></div></section>
+<section id="help" class="section"><div class="card prose"><h2>本版计算口径</h2><p>本版根据附件13项需求模块配置四层保障。所有内置数值均为开发演示假设，包括药价、用量、支付标准、起付线、比例和限额；未植入任何已验证的地方政策。</p><h3>费用划分</h3><p>药费 = 当前单价 × 日用量 × 天数。医保范围内金额 = min（单价，单支支付限价）× 用量；差额计入目录外自费。未纳入医保范围时全部归为目录外自费。本模型的超支付限价归类为简化假设，真实口径须另行核验。</p><p>基本医保基数 = 范围内金额 ×（1 − 先行自付比例）。先行自付留在目录内自付池；后层是否可覆盖需核验。后续每层可选“目录内自付”“目录外自费”或“两者合计”。需要特药单独责任、排除部分先行自付或特殊费用分类时，应扩展费用池后再用于正式测算。</p><h3>年度累计和阶梯</h3><p>年度责任本次理论赔付 = F（历史累计合规基数 + 本次合规基数）− F（历史累计合规基数）。F先扣起付线，再按阶梯累计计算。阶梯上限均指扣起付线后的累计基数上限；空白代表不限，须置于最后一档。</p><p>单次责任不读取历史累计基数，但仍扣除年度已赔以计算剩余额度。实际赔付不超过剩余年度限额、本次/疗程限额、合规费用及剩余自付。已赔金额与累计基数是两个不同字段，不能互相替代。</p><h3>四层衔接与最低自付</h3><p>按基本医保、大病医保、惠民保、福享关爱依次扣减。混合责任赔付按目录内外剩余金额占比分摊，避免重复赔付；地区有指定抵扣顺序时应单独修改。前置条件要求相关层已启用且准入已确认，不要求必须产生正数赔付。</p><p>福享关爱可设置最低患者自付比例，基数可选原始总药费或进入该层前剩余费用。该规则只限制本层赔付，不回溯削减前层已付。禁止叠加时，前层已有实际赔付则本层不再支付。</p><h3>既往症与地区规则</h3><p>既往症切换会取消惠民保、福享关爱的准入确认，防止无依据套用非既往症参数。需填写既往症对应的免赔额、比例、限额后，再确认准入。省市及其他身份字段用于记录场景，切换会取消所有层准入确认，请载入相应配置或人工配置。</p><h3>结果与用途</h3><p>最终自付 = 总药费 − 四层实际支付之和。日均费用 = 最终自付 ÷ 天数。结果按分四舍五入。单价、日用量及疗程仅作费用输入，不代表剂量建议。页面不自动验证保障期或政策真伪，需由Local团队确认。</p><p>本版为HTML/CSS/JavaScript静态代码，可双击index.html或部署至Netlify/GitHub Pages；无需Python或Streamlit。更新config.js可修改默认演示参数。</p></div></section>
+<footer>思福妥多层次保障支付模拟计算器 · 数据结构依据附件需求清单 · 演示版 V1.0</footer></div><script>// 全部数值均为演示假设，不代表任何城市、药品或项目的正式待遇。
+window.DEFAULT_CONFIG={
+ version:'1.0',patient:{province:'北京',city:'北京',insurance:'职工医保',employment:'在职',hospital:'三级',setting:'住院',special:'普通人群',preExisting:false},
+ drug:{name:'思福妥',spec:'待确认',price:1396,vbpPrice:0,useVbp:false,daily:3,days:7,paymentLimit:1396,covered:true,firstPay:0.1},
+ metadata:{policyName:'演示规则（待配置）',year:'2026',updated:'2026-09-21',source:'附件数据需求清单；数值为开发演示假设',url:'',verification:'待验证',reviewer:'',notes:'附件未提供实际价格、报销比例、限额或衔接规则。当前省市及身份仅用于标识场景，不会自动匹配真实政策。混合范围赔付按目录内外余额占比分摊。'},
+ layers:[
+ {name:'基本医保',enabled:true,eligible:true,scope:'inside',period:'annual',deductible:1500,annualCap:200000,paid:0,accumulated:0,courseCap:200000,minSelf:0,minSelfBase:'original',prerequisites:[],allowStack:true,tiers:[{upper:null,rate:0.7}],product:'演示基本医保',responsibility:'目录内扣除先行自付后',conditions:'实际适应症、处方及结算条件待确认',enrollment:'待确认',coverage:'待确认',preRule:'共同规则'},
+ {name:'大病医保',enabled:true,eligible:true,scope:'inside',period:'annual',deductible:15000,annualCap:300000,paid:0,accumulated:0,courseCap:300000,minSelf:0,minSelfBase:'original',prerequisites:[0],allowStack:true,tiers:[{upper:20000,rate:0.5},{upper:null,rate:0.6}],product:'演示大病医保',responsibility:'基本医保后目录内自付',conditions:'合规个人负担口径待确认',enrollment:'待确认',coverage:'待确认',preRule:'共同规则'},
+ {name:'惠民保',enabled:true,eligible:true,scope:'both',period:'annual',deductible:10000,annualCap:1000000,paid:0,accumulated:0,courseCap:1000000,minSelf:0,minSelfBase:'original',prerequisites:[0,1],allowStack:true,tiers:[{upper:null,rate:0.7}],product:'演示惠民保',responsibility:'前层结算后目录内及目录外费用',conditions:'思福妥是否纳入责任待确认',enrollment:'待确认',coverage:'待确认',preRule:'待配置'},
+ {name:'福享关爱商业保险',enabled:true,eligible:true,scope:'both',period:'annual',deductible:0,annualCap:100000,paid:0,accumulated:0,courseCap:100000,minSelf:0.3,minSelfBase:'incoming',prerequisites:[0,1,2],allowStack:true,tiers:[{upper:null,rate:0.5}],product:'福享关爱（演示）',responsibility:'惠民保后剩余费用',conditions:'项目准入及叠加规则待确认',enrollment:'待确认',coverage:'待确认',preRule:'待配置'}
+ ]
+};
+</script><script>/* 四层增量赔付模型。纯函数，无网络请求。 */
+(function(root){
+'use strict';
+const money=x=>Math.round((x+Number.EPSILON)*100)/100;
+const scopes=['inside','outside','both'];
+function check(n,label,max=1e12){if(typeof n!=='number'||!Number.isFinite(n)||n<0||n>max)throw Error(label+'必须为0至'+max+'的数字');}
+function validate(s){
+ if(!s||!s.patient||!s.drug||!Array.isArray(s.layers)||s.layers.length!==4)throw Error('配置必须包含patient、drug和四层layers');
+ const d=s.drug;['price','daily','days','paymentLimit','firstPay'].forEach(k=>check(d[k],'药品 '+k,k==='firstPay'?1:1e9));
+ if(d.days<1||!Number.isInteger(d.days)||d.daily<=0)throw Error('疗程须为正整数，每日用量须大于0');
+ if(typeof d.covered!=='boolean')throw Error('医保范围开关缺失');
+ s.layers.forEach((l,i)=>{
+  if(typeof l.enabled!=='boolean'||typeof l.eligible!=='boolean')throw Error('第'+(i+1)+'层启用或准入开关缺失');
+  ['deductible','annualCap','paid','accumulated','courseCap','minSelf'].forEach(k=>check(l[k],l.name+' '+k,k==='minSelf'?1:1e12));
+  if(!['annual','single'].includes(l.period)||!scopes.includes(l.scope))throw Error(l.name+'累计口径或保障范围错误');
+  if(!Array.isArray(l.tiers)||!l.tiers.length)throw Error(l.name+'至少设置一档');
+  let previous=0;l.tiers.forEach((t,j)=>{check(t.rate,l.name+'比例',1);if(t.upper===null){if(j!==l.tiers.length-1)throw Error('不限上限档必须放在最后');}else{check(t.upper,'阶梯上限');if(t.upper<=previous)throw Error('阶梯上限须严格递增');previous=t.upper;}});
+  if(!['original','incoming'].includes(l.minSelfBase))throw Error('最低自付基数错误');
+  if(!Array.isArray(l.prerequisites)||l.prerequisites.some(v=>!Number.isInteger(v)||v<0||v>=i))throw Error('前置条件必须指向更早的保障层');
+ });return s;
+}
+function ladder(x,tiers){let a=0,prev=0;for(const t of tiers){const top=t.upper===null?Infinity:t.upper;a+=Math.max(0,Math.min(x,top)-prev)*t.rate;prev=top;if(x<=top)break;}return a;}
+function entitlement(x,l){return ladder(Math.max(0,x-l.deductible),l.tiers);}
+function calculate(s,days=s.drug.days){
+ validate(s);check(days,'疗程');if(days<1||!Number.isInteger(days))throw Error('疗程须为正整数');
+ const d=s.drug,total=money(d.price*d.daily*days);
+ const allowed=d.covered?money(Math.min(d.price,d.paymentLimit)*d.daily*days):0;
+ const first=money(allowed*d.firstPay);const pool={inside:allowed,outside:money(total-allowed)};
+ const results=[];let previousPaid=0;
+ for(let i=0;i<4;i++){
+  const l=s.layers[i],before=money(pool.inside+pool.outside);
+  const base=i===0?money(Math.max(0,pool.inside-first)):(l.scope==='both'?before:pool[l.scope]);
+  let reason='',amount=0;
+  if(!l.enabled)reason='未启用';else if(!l.eligible)reason='不符合准入条件';
+  else if(l.prerequisites.some(j=>!s.layers[j].enabled||!s.layers[j].eligible))reason='前置保障未启用或未满足准入';
+  else if(i===3&&!l.allowStack&&previousPaid>0)reason='不允许与前层实际赔付叠加';
+  else {
+   const prior=l.period==='annual'?l.accumulated:0;
+   const incremental=Math.max(0,entitlement(prior+base,l)-entitlement(prior,l));
+   // 年度累计基数用于起付线及阶梯定位；历史已赔只扣减可用保额。
+   const floor=i===3?l.minSelf*(l.minSelfBase==='original'?total:before):0;
+   amount=money(Math.max(0,Math.min(incremental,l.annualCap-l.paid,l.courseCap,base,before-floor)));
+   reason=amount>0?'按当前配置测算':(base===0?'无符合范围的费用':l.paid>=l.annualCap?'年度额度已用尽':'未达起付线或受比例、额度限制');
+  }
+  if(i===0||l.scope==='inside')pool.inside=money(pool.inside-amount);
+  else if(l.scope==='outside')pool.outside=money(pool.outside-amount);
+  else{const take=before>0?money(amount*pool.inside/before):0;pool.inside=money(pool.inside-take);pool.outside=money(pool.outside-(amount-take));}
+  previousPaid=money(previousPaid+amount);
+  results.push({name:l.name,base,amount,remaining:money(total-previousPaid),inside:pool.inside,outside:pool.outside,reason});
+ }
+ return {days,quantity:d.daily*days,total,allowed,first,outside:money(total-allowed),results,paid:previousPaid,final:money(total-previousPaid),daily:money((total-previousPaid)/days),ratio:total?previousPaid/total:0};
+}
+root.Calculator={calculate,validate,ladder};if(typeof module!=='undefined')module.exports=root.Calculator;
+})(typeof window!=='undefined'?window:globalThis);
+</script><script>'use strict';
+const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),clone=v=>JSON.parse(JSON.stringify(v));
+let state=clone(window.DEFAULT_CONFIG),lastResult=null;
+const yuan=n=>'¥'+n.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const regions={'北京':['北京'],'上海':['上海'],'广东':['广州','深圳','中山'],'河南':['郑州'],'浙江':['杭州'],'山东':['济南'],'江苏':['南京','苏州'],'其他':['其他']};
+function get(path){return path.split('.').reduce((o,k)=>o[k],state)}
+function set(path,v){let keys=path.split('.'),last=keys.pop(),o=keys.reduce((o,k)=>o[k],state);o[last]=v;}
+function field(label,path,type='number',options=null,wide=false){let v=get(path),id='f_'+path.replaceAll('.','_'),a=`id="${id}" data-path="${path}"`;
+ let input=options?`<select ${a}>${options.map(x=>{let [val,txt]=Array.isArray(x)?x:[x,x];return `<option value="${esc(val)}" ${String(v)===String(val)?'selected':''}>${esc(txt)}</option>`}).join('')}</select>`:type==='textarea'?`<textarea ${a}>${esc(v)}</textarea>`:`<input ${a} type="${type}" value="${esc(v)}" ${type==='number'?'min="0" step="any"':''}>`;
+ return `<div class="field ${wide?'wide':''}"><label for="${id}">${label}</label>${input}</div>`;
+}
+function percent(label,path){return `<div class="field"><label for="f_${path}">${label} (%)</label><input id="f_${path}" data-path="${path}" data-percent="1" type="number" min="0" max="100" step="any" value="${Number((get(path)*100).toFixed(8))}"></div>`}
+function check(label,path){return `<label><input type="checkbox" data-path="${path}" ${get(path)?'checked':''}>${label}</label>`}
+function renderForms(){
+ const p=state.patient;
+ $('patientForm').innerHTML=field('省份','patient.province','text',[...new Set([...Object.keys(regions),p.province])])+field('城市','patient.city','text',[...new Set([...(regions[p.province]||[]),p.city])])+field('参保类型','patient.insurance','text',['职工医保','居民医保','未参保'])+field('人员身份','patient.employment','text',['在职','退休','其他'])+field('医院等级','patient.hospital','text',['三级','二级','一级','其他'])+field('结算场景','patient.setting','text',['住院','门诊','双通道药店'])+field('特殊人群','patient.special','text')+`<div class="field">${check('既往症人群','patient.preExisting')}</div>`+field('产品名称','drug.name','text')+field('规格（按实际填写）','drug.spec','text')+field('当前单价（元/支）','drug.price')+field('每日用量（支/天）','drug.daily')+field('疗程（天，可填3/7/14）','drug.days')+field('单支医保支付限价（元）','drug.paymentLimit')+percent('先行自付比例','drug.firstPay')+`<div class="field">${check('纳入医保支付范围','drug.covered')}</div>`+field('VBP情景单价（元/支）','drug.vbpPrice')+`<div class="field">${check('使用VBP价格情景','drug.useVbp')}</div>`;
+ $('participation').innerHTML=state.layers.map((l,i)=>`<div class="check-row">${check(esc(l.name),`layers.${i}.enabled`)}${check('符合准入',`layers.${i}.eligible`)}</div>`).join('');
+ $('history').innerHTML=state.layers.map((l,i)=>`<div class="history-row"><strong>${esc(l.name)}</strong><div class="fields">${field('累计合规基数（元）',`layers.${i}.accumulated`)}${field('年度已赔金额（元）',`layers.${i}.paid`)}</div></div>`).join('');
+ $('metadata').innerHTML=field('政策/方案正式名称','metadata.policyName','text')+field('年份/版本','metadata.year','text')+field('更新时间','metadata.updated','text')+field('政策来源','metadata.source','text')+field('官方链接','metadata.url','url')+field('Local验证状态','metadata.verification','text',['待验证','已验证'])+field('验证人/团队','metadata.reviewer','text')+field('特殊备注','metadata.notes','textarea',null,true);
+ $('layerForms').innerHTML=state.layers.map((l,i)=>{
+  const p=`layers.${i}.`;
+  return `<div class="card"><h2><i>0${i+1}</i>${esc(l.name)}</h2><div class="fields">${field('产品正式名称',p+'product','text',null,true)}${field('保障责任名称',p+'responsibility','text',null,true)}${field('保障费用范围',p+'scope','text',i===0?[['inside','目录内扣除先行自付']]:[['inside','目录内自付'],['outside','目录外自费'],['both','两者合计']])}${field('起付线累计口径',p+'period','text',[['annual','年度累计'],['single','单次/本疗程']])}${field('起付线 / 免赔额（元）',p+'deductible')}${field('年度赔付限额（元）',p+'annualCap')}${field('本次/疗程赔付限额（元）',p+'courseCap')}${field('既往症条款状态',p+'preRule','text',['待配置','共同规则','已填入既往症规则','已填入非既往症规则'])}</div><div class="tier-panel"><h3>分段赔付比例</h3><p class="note">上限为扣起付线后的累计金额；最后一档可留空表示不限。比例以百分数输入。</p><div id="tiers_${i}">${tierRows(i)}</div><button class="secondary" data-add="${i}">＋ 增加阶梯</button></div><details><summary>准入、保障期与衔接设置</summary><div class="fields">${field('适用患者 / 准入条件',p+'conditions','textarea',null,true)}${field('投保期',p+'enrollment','text')}${field('保障期',p+'coverage','text')}</div>${i?'<p class="note">计算本层前，要求以下保障已启用且准入已确认：</p>'+state.layers.slice(0,i).map((x,j)=>`<label><input type="checkbox" data-pre-layer="${i}" data-pre-index="${j}" ${l.prerequisites.includes(j)?'checked':''}>${esc(x.name)}</label>`).join(''):''}${i===3?`<div class="fields" style="margin-top:16px">${percent('最低患者自付比例',p+'minSelf')}${field('最低自付比例的基数',p+'minSelfBase','text',[['original','原始总药费'],['incoming','进入本层前剩余费用']])}</div><p>${check('允许与前层保障叠加',p+'allowStack')}</p>`:''}</details></div>`;
+ }).join('');
+}
+function tierRows(i){return state.layers[i].tiers.map((t,j)=>`<div class="tier-row"><label>第${j+1}档累计上限（元）<input type="number" min="0" step="any" placeholder="不限" data-path="layers.${i}.tiers.${j}.upper" data-nullable="1" value="${t.upper??''}"></label><label>赔付比例 (%)<input type="number" min="0" max="100" step="any" data-path="layers.${i}.tiers.${j}.rate" data-percent="1" value="${Number((t.rate*100).toFixed(8))}"></label><button data-remove="${i},${j}" aria-label="删除第${j+1}档">删除</button></div>`).join('')}
+function calculationState(){let c=clone(state);if(c.drug.useVbp){if(!(c.drug.vbpPrice>0))throw Error('请填写大于0的VBP价格后再启用该情景');c.drug.price=c.drug.vbpPrice;}return c;}
+function update(){
+ try{
+  const c=calculationState(),r=Calculator.calculate(c);lastResult=r;$('error').hidden=true;
+  $('scenario').textContent=`${state.patient.province} · ${state.patient.city} · ${state.patient.insurance} · ${state.patient.employment} · ${state.patient.setting} · ${state.patient.preExisting?'既往症':'非既往症'}｜${r.days}天 / ${r.quantity}支｜${state.metadata.verification} · 演示配置`;
+  $('metrics').innerHTML=[['原始总药费',r.total,''],['四层支付合计',r.paid,''],['患者最终自付',r.final,'final']].map(([s,n,k])=>`<div class="metric ${k}"><small>${s}</small><strong>${yuan(n)}</strong></div>`).join('');
+  $('daily').innerHTML=`最终日均自付<strong>${yuan(r.daily)}</strong>元/天<small>相比全额自费减少 ${(r.ratio*100).toFixed(1)}% · 共减少 ${yuan(r.paid)}</small>`;
+  const names=['全额自费','基本医保后','大病医保后','惠民保后','福享关爱后'],values=[r.total,...r.results.map(x=>x.remaining)],colors=['#f28b2e','#0b78b6','#179fbc','#1dafab','#20b990'];
+  $('bars').innerHTML=names.map((name,i)=>`<div class="bar-row"><div class="bar-label"><span>${name}</span><strong>${yuan(values[i])}</strong></div><div class="track"><div class="fill" style="width:${r.total?values[i]/r.total*100:0}%;background:${colors[i]}"></div></div></div>`).join('');
+  $('breakdown').innerHTML=r.results.map(x=>`<tr><td>${esc(x.name)}</td><td>${yuan(x.base)}</td><td>${yuan(x.amount)}</td><td>${yuan(x.remaining)}</td></tr>`).join('');
+  $('reasons').innerHTML=`<p>医保范围内：${yuan(r.allowed)}；其中先行自付：${yuan(r.first)}；目录外自费：${yuan(r.outside)}。</p>`+r.results.map(x=>`<div>${esc(x.name)}：${esc(x.reason)}</div>`).join('');
+  $('courses').innerHTML=[3,7,14].map(n=>{const v=Calculator.calculate(c,n);return `<div class="course"><h3>${n}天疗程</h3><span>最终自付</span><strong>${yuan(v.final)}</strong><span>日均 ${yuan(v.daily)}<br>总药费 ${yuan(v.total)}</span></div>`}).join('');
+ }catch(e){lastResult=null;$('error').hidden=false;$('error').textContent=e.message;$('metrics').innerHTML='<p>参数无效，请修正后测算。</p>';['daily','bars','breakdown','reasons','courses'].forEach(id=>$(id).innerHTML='');}
+}
+function download(name,content,type){let blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+function importValidate(v){
+ Calculator.validate(v);if(!v.metadata||typeof v.metadata!=='object')throw Error('缺少政策来源metadata');
+ for(const key of Object.keys(window.DEFAULT_CONFIG.patient)){if(typeof v.patient[key]!==typeof window.DEFAULT_CONFIG.patient[key])throw Error('患者字段类型错误：'+key);}
+ for(const key of Object.keys(window.DEFAULT_CONFIG.metadata)){if(typeof v.metadata[key]!=='string')throw Error('来源字段类型错误：'+key);}
+ for(const key of ['name','spec'])if(typeof v.drug[key]!=='string')throw Error('药品名称/规格错误');
+ if(typeof v.drug.useVbp!=='boolean'||typeof v.drug.vbpPrice!=='number'||!Number.isFinite(v.drug.vbpPrice)||v.drug.vbpPrice<0)throw Error('VBP字段错误');
+ v.layers.forEach(l=>{for(const k of ['name','product','responsibility','conditions','enrollment','coverage','preRule'])if(typeof l[k]!=='string')throw Error('保障说明字段错误：'+k);if(typeof l.allowStack!=='boolean')throw Error('叠加字段错误');});
+ if(v.drug.useVbp&&v.drug.vbpPrice<=0)throw Error('VBP价格须大于0');return v;
+}
+document.addEventListener('input',e=>{
+ const el=e.target,path=el.dataset.path;if(!path)return;
+ let v=el.type==='checkbox'?el.checked:el.type==='number'?(el.value===''?(el.dataset.nullable?null:NaN):Number(el.value)):el.value;
+ if(el.dataset.percent)v=v/100;set(path,v);
+ if(path.startsWith('patient.')){
+  if(path==='patient.province')state.patient.city=(regions[v]||['其他'])[0];
+  if(path==='patient.preExisting')state.layers.slice(2).forEach(l=>l.eligible=false);else state.layers.forEach(l=>l.eligible=false);
+  if(el.tagName==='SELECT'||el.type==='checkbox')renderForms();
+  else $('participation').innerHTML=state.layers.map((l,i)=>`<div class="check-row">${check(esc(l.name),`layers.${i}.enabled`)}${check('符合准入',`layers.${i}.eligible`)}</div>`).join('');
+ }
+ update();
+});
+document.addEventListener('change',e=>{const el=e.target;if(el.dataset.preLayer!==undefined){let l=state.layers[Number(el.dataset.preLayer)],j=Number(el.dataset.preIndex);l.prerequisites=el.checked?[...new Set([...l.prerequisites,j])]:l.prerequisites.filter(x=>x!==j);update();}});
+document.addEventListener('click',e=>{
+ const b=e.target.closest('button');if(!b)return;
+ if(b.dataset.tab){document.querySelectorAll('.section').forEach(x=>x.classList.toggle('active',x.id===b.dataset.tab));document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));}
+ if(b.dataset.add!==undefined){let i=Number(b.dataset.add),t=state.layers[i].tiers;if(t.length>=10){alert('最多支持10档');return;}if(t[t.length-1].upper===null)t[t.length-1].upper=(t.length>1?t[t.length-2].upper:0)+20000;t.push({upper:null,rate:t[t.length-1].rate});$('tiers_'+i).innerHTML=tierRows(i);update();}
+ if(b.dataset.remove){let [i,j]=b.dataset.remove.split(',').map(Number);if(state.layers[i].tiers.length===1){alert('至少保留一档');return;}state.layers[i].tiers.splice(j,1);$('tiers_'+i).innerHTML=tierRows(i);update();}
+});
+$('exportJson').onclick=()=>{try{importValidate(state);download('sifutuo-config.json',JSON.stringify(state,null,2),'application/json')}catch(e){alert(e.message)}};
+$('importJson').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>1000000)throw Error('配置文件不能超过1MB');let v=importValidate(JSON.parse(await file.text()));state=clone(v);renderForms();update();$('fileStatus').textContent='已载入 '+file.name+'。请核对政策与准入条件。';}catch(err){$('fileStatus').textContent='载入失败：'+err.message;}e.target.value='';};
+$('exportCsv').onclick=()=>{if(!lastResult){alert('请先修正参数');return;}const r=lastResult,rows=[['思福妥演示测算结果（非正式待遇）'],['省份','城市','参保类型','既往症','验证状态'],[state.patient.province,state.patient.city,state.patient.insurance,state.patient.preExisting?'是':'否',state.metadata.verification],['当前单价',calculationState().drug.price],['每日用量',state.drug.daily],['当前疗程',r.days],['总药费',r.total],['层级','合规基数','本层支付','剩余自付'],...r.results.map(x=>[x.name,x.base,x.amount,x.remaining]),['最终自付',r.final],['日均自付',r.daily],[],['独立疗程','原始药费','最终自付','日均自付'],...[3,7,14].map(n=>{let x=Calculator.calculate(calculationState(),n);return[n,x.total,x.final,x.daily]})];const cell=v=>'"'+String(typeof v==='string'&&/^[=+\-@\t\r]/.test(v)?"'"+v:v).replaceAll('"','""')+'"';download('思福妥_演示测算.csv','\ufeff'+rows.map(r=>r.map(cell).join(',')).join('\r\n'),'text/csv;charset=utf-8');};
+$('print').onclick=()=>{if(lastResult)window.print();else alert('请先修正参数');};
+$('reset').onclick=()=>{if(confirm('恢复演示参数会覆盖本次未下载的修改，是否继续？')){state=clone(window.DEFAULT_CONFIG);renderForms();update();$('fileStatus').textContent='已恢复演示参数。';}};
+renderForms();update();
+</script></body></html>
