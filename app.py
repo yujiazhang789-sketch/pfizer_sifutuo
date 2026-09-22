@@ -3,7 +3,7 @@ import pandas as pd
 import altair as alt
 
 # ==========================================================
-# 思福妥® 多层次保障支付模拟计算器 - v5
+# 思福妥® 四重保障模拟支付计算器 - v6
 # UI参考：xacduro-insurance.netlify.app 的模块化、卡片化、内部工具呈现方式
 # 逻辑基础：2026-09 最新会议口径
 #
@@ -14,7 +14,7 @@ import altair as alt
 # ==========================================================
 
 st.set_page_config(
-    page_title="思福妥多层次保障支付模拟计算器",
+    page_title="思福妥® 四重保障模拟支付计算器",
     page_icon="💠",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -225,7 +225,6 @@ def calculate_scenario(
         "福享关爱支付": care_pay,
         "最终药品自付": final_pay,
         "总保障金额": total_support,
-        "综合保障比例": total_support / total_cost if total_cost > 0 else 0,
         "日均药品自付": final_pay / days if days > 0 else 0,
     }
 
@@ -517,19 +516,219 @@ header[data-testid="stHeader"] {
 """, unsafe_allow_html=True)
 
 # ----------------------------------------------------------
-# 6. Hero
+# 6. 新需求辅助函数 + 补充样式
+# ----------------------------------------------------------
+def verification_label(flag):
+    return "已核验" if flag else "待核验"
+
+
+def build_source_table(policy):
+    return pd.DataFrame([
+        {
+            "保障层级": "基本医保",
+            "数据来源": "中央职场",
+            "当前录入口径": f'每支固定支付 {money(policy["basic"]["fixed_pay_per_unit"])}',
+            "核验状态": verification_label(policy["basic"]["verified"]),
+        },
+        {
+            "保障层级": "大病医保",
+            "数据来源": "Local MA给到",
+            "当前录入口径": (
+                f'起付线 {money(policy["major"]["deductible"])}；'
+                f'至 {money(policy["major"]["tier1_upper"])} 按 {policy["major"]["tier1_rate"]:.0%}；'
+                f'以上按 {policy["major"]["tier2_rate"]:.0%}'
+            ),
+            "核验状态": verification_label(policy["major"]["verified"]),
+        },
+        {
+            "保障层级": "惠民保",
+            "数据来源": "同步政策信息",
+            "当前录入口径": f'{policy["hmb"]["name"]}｜{policy["hmb"]["scope"]}',
+            "核验状态": verification_label(policy["hmb"]["verified"]),
+        },
+        {
+            "保障层级": "福享关爱",
+            "数据来源": "项目规则",
+            "当前录入口径": "无免赔额；按当前后台项目参数测算",
+            "核验状态": verification_label(policy["care"]["verified"]),
+        },
+    ])
+
+
+def get_reductions(result):
+    """用相邻阶段的差值计算每层实际减免，避免重复累计。"""
+    return {
+        "基本医保": max(result["思福妥药品费用"] - result["医保后药品自付"], 0.0),
+        "大病医保": max(result["医保后药品自付"] - result["大病后药品自付"], 0.0),
+        "惠民保": max(result["大病后药品自付"] - result["惠民保后药品自付"], 0.0),
+        "福享关爱": max(result["惠民保后药品自付"] - result["最终药品自付"], 0.0),
+    }
+
+
+def cumulative_reduction(result):
+    """累计减免 = 原始药品费用 - 最终支付。"""
+    return max(result["思福妥药品费用"] - result["最终药品自付"], 0.0)
+
+
+def build_daily_waterfall(result):
+    """构建当前治疗周期下，不同支付情景的日均治疗费用瀑布图。"""
+    days = max(int(result["支付测算周期"]), 1)
+    reductions = get_reductions(result)
+    original_daily = result["思福妥药品费用"] / days
+    current = original_daily
+
+    rows = [{
+        "阶段": "原始日均",
+        "类型": "起始",
+        "下界": 0.0,
+        "上界": original_daily,
+        "金额": original_daily,
+        "标签": money(original_daily),
+    }]
+
+    for name in ["基本医保", "大病医保", "惠民保", "福享关爱"]:
+        reduction_daily = reductions[name] / days
+        next_value = max(current - reduction_daily, 0.0)
+        rows.append({
+            "阶段": name,
+            "类型": "减免",
+            "下界": min(current, next_value),
+            "上界": max(current, next_value),
+            "金额": reduction_daily,
+            "标签": f'-{money(reduction_daily)}',
+        })
+        current = next_value
+
+    final_daily = result["最终药品自付"] / days
+    rows.append({
+        "阶段": "最终日均",
+        "类型": "最终",
+        "下界": 0.0,
+        "上界": final_daily,
+        "金额": final_daily,
+        "标签": money(final_daily),
+    })
+    return pd.DataFrame(rows)
+
+
+st.markdown("""
+<style>
+.path-head {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:8px;
+}
+.units-pill {
+    display:inline-flex;
+    padding:6px 10px;
+    border-radius:999px;
+    background:#F2F4F7;
+    color:#475467;
+    font-size:11px;
+    font-weight:750;
+}
+.layer-caption {
+    font-size:10px;
+    opacity:.66;
+    margin-bottom:6px;
+}
+.result-panel {
+    background:linear-gradient(135deg,#F8FBFF 0%,#EDF6FF 100%);
+    border:1px solid #D6E9FA;
+    border-radius:16px;
+    padding:18px 20px;
+    margin:8px 0 16px;
+}
+.result-grid {
+    display:grid;
+    grid-template-columns:1.35fr 1fr 1fr;
+    gap:12px;
+}
+.metric-primary, .metric-secondary {
+    border-radius:13px;
+    padding:14px 15px;
+}
+.metric-primary {
+    background:#153B63;
+    color:white;
+}
+.metric-secondary {
+    background:white;
+    border:1px solid #DCE7F1;
+    color:#1D2939;
+}
+.metric-label {
+    font-size:11px;
+    opacity:.72;
+    margin-bottom:5px;
+}
+.metric-primary .metric-label {
+    color:rgba(255,255,255,.72);
+}
+.metric-value-primary {
+    font-size:34px;
+    font-weight:900;
+    line-height:1.08;
+}
+.metric-value {
+    font-size:25px;
+    font-weight:850;
+    color:#153B63;
+}
+.metric-note {
+    font-size:10px;
+    opacity:.67;
+    margin-top:5px;
+    line-height:1.45;
+}
+.scenario-card {
+    border:1px solid #E6ECF2;
+    background:white;
+    border-radius:14px;
+    padding:13px 14px;
+    min-height:118px;
+}
+.scenario-days {
+    font-size:11px;
+    color:#98A2B3;
+    font-weight:800;
+    letter-spacing:.08em;
+}
+.scenario-daily {
+    font-size:26px;
+    color:#153B63;
+    font-weight:900;
+    margin:4px 0 6px;
+}
+.scenario-meta {
+    font-size:11px;
+    color:#667085;
+    line-height:1.6;
+}
+@media(max-width:850px) {
+    .result-grid { grid-template-columns:1fr; }
+}
+</style>
+""", unsafe_allow_html=True)
+
+# ----------------------------------------------------------
+# 7. Hero
 # ----------------------------------------------------------
 st.markdown("""
 <div class="hero">
-  <div class="hero-kicker">SIFUTUO ACCESS · INTERNAL TOOL</div>
-  <div class="hero-title">思福妥® 多层次保障支付模拟计算器</div>
+  <div class="hero-kicker">SIFUTUO ACCESS · FOUR-LAYER SUPPORT</div>
+  <div class="hero-title">思福妥® 四重保障模拟支付计算器</div>
   <div class="hero-sub">
-    聚焦思福妥药品增量支付，串联基本医保、大病医保、惠民保与福享关爱，
-    快速比较不同治疗周期下患者最终药品自付及日均负担。
+    聚焦“思福妥”四重保障——<b>基本医保 + 大病医保 + 惠民保 + 福享关爱</b>。<br>
+    本模型希望打破“信息茧房”，帮助临床医生和患者全面理解四重保障政策叠加后，
+    患者的真实支付情况，及不同治疗周期患者实际自付成本变化。
   </div>
   <div class="hero-badges">
-    <span class="hero-badge">内部参考</span>
-    <span class="hero-badge">Pilot Demo</span>
+    <span class="hero-badge">四重保障</span>
+    <span class="hero-badge">Pilot</span>
     <span class="hero-badge">3 / 7 / 14 天情景</span>
   </div>
 </div>
@@ -537,46 +736,60 @@ st.markdown("""
 
 st.markdown("""
 <div class="notice">
-<b>使用提示：</b>
-本工具只测算“选择思福妥”这一药物本身新增的药品费用与保障支付，不重建患者完整住院/ICU医保结算。
-患者既往治疗费用仅用于判断大病医保年度累计门槛是否被触发。
+<b>免责声明：</b>
+本工具仅模拟测算在四重保障支付下“思福妥”涉及的自付费用，患者真实治疗费用以医院实际结算为准。
+目前仅呈现个别城市的Pilot，后续会持续更新。
 </div>
 """, unsafe_allow_html=True)
 
 # ----------------------------------------------------------
-# 7. 输入区 + 结果区
+# 8. 当前Pilot数据：先表格呈现
 # ----------------------------------------------------------
-left, right = st.columns([0.92, 1.58], gap="large")
+st.markdown('<div class="section-eyebrow">PILOT DATA</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-title">当前 Pilot 数据</div>', unsafe_allow_html=True)
 
-with left:
-    st.markdown('<div class="section-eyebrow">STEP 01</div>', unsafe_allow_html=True)
-    st.markdown('<div class="section-title">选择地区与保障</div>', unsafe_allow_html=True)
+pilot_left, pilot_right = st.columns([0.35, 0.65], gap="large")
 
+with pilot_left:
     province = st.selectbox("省份", list(REGIONS.keys()))
     city = st.selectbox("城市", REGIONS[province])
-
     policy = get_policy(province, city)
 
     st.markdown(
-        f"""
-        <div class="status-line">
-            <span><b>{province} · {city}</b></span>
-            <span class="status-pill">{policy["status"]}</span>
-        </div>
-        """,
+        f'<div class="status-line"><span><b>{province} · {city}</b></span>'
+        f'<span class="status-pill">{policy["status"]}</span></div>',
         unsafe_allow_html=True
     )
 
     if (province, city) not in POLICY_DB:
         st.warning("该城市真实政策尚未录入，当前仅使用DEMO占位参数。")
 
-    st.caption(f'自动匹配惠民保：{policy["hmb"]["name"]}')
-
-    participate_hmb = st.checkbox(
-        f'参加 {policy["hmb"]["name"]}',
-        value=True
+with pilot_right:
+    source_df = build_source_table(policy)
+    st.dataframe(
+        source_df,
+        use_container_width=True,
+        hide_index=True,
+        column_config={
+            "保障层级": st.column_config.TextColumn("保障层级", width="small"),
+            "数据来源": st.column_config.TextColumn("数据来源", width="small"),
+            "当前录入口径": st.column_config.TextColumn("当前录入口径", width="large"),
+            "核验状态": st.column_config.TextColumn("核验状态", width="small"),
+        }
     )
 
+# ----------------------------------------------------------
+# 9. 输入 + 四重保障结果
+# ----------------------------------------------------------
+st.divider()
+left, right = st.columns([0.86, 1.64], gap="large")
+
+with left:
+    st.markdown('<div class="section-eyebrow">STEP 01</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">选择保障场景</div>', unsafe_allow_html=True)
+    st.caption(f'惠民保：{policy["hmb"]["name"]}')
+
+    participate_hmb = st.checkbox(f'参加 {policy["hmb"]["name"]}', value=True)
     is_preexisting = False
     if participate_hmb:
         population = st.radio(
@@ -586,13 +799,9 @@ with left:
         )
         is_preexisting = population == "既往症人群"
 
-    participate_care = st.checkbox(
-        f'参加 {policy["care"]["name"]}',
-        value=True
-    )
+    participate_care = st.checkbox(f'参加 {policy["care"]["name"]}', value=True)
 
     st.divider()
-
     st.markdown('<div class="section-eyebrow">STEP 02</div>', unsafe_allow_html=True)
     st.markdown('<div class="section-title">大病医保累计基础</div>', unsafe_allow_html=True)
 
@@ -616,12 +825,11 @@ with left:
             step=1000.0
         )
 
-    st.caption("该金额仅用于判断大病医保是否进一步触发，不重复计入本次药品自付。")
+    st.caption("该金额仅用于判断本次思福妥费用是否进一步触发大病医保，不重复计入本次药品支付。")
 
     st.divider()
-
     st.markdown('<div class="section-eyebrow">STEP 03</div>', unsafe_allow_html=True)
-    st.markdown('<div class="section-title">选择支付测算周期</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">选择治疗周期</div>', unsafe_allow_html=True)
 
     selected_days = st.segmented_control(
         "周期",
@@ -635,24 +843,12 @@ with left:
     current_units = PRODUCT["daily_units"] * selected_days
     current_drug_cost = PRODUCT["unit_price"] * current_units
 
-    st.markdown(
-        f"""
-        <div class="mini-grid">
-            <div class="mini-card">
-                <div class="mini-label">单价</div>
-                <div class="mini-value">{money(PRODUCT["unit_price"])}/支</div>
-            </div>
-            <div class="mini-card">
-                <div class="mini-label">每日用量</div>
-                <div class="mini-value">{PRODUCT["daily_units"]} 支</div>
-            </div>
-            <div class="mini-card">
-                <div class="mini-label">当前药品费用</div>
-                <div class="mini-value">{money(current_drug_cost)}</div>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True
+    m1, m2 = st.columns(2)
+    m1.metric("当前支数", f"{current_units} 支")
+    m2.metric("原始药品费用", money(current_drug_cost))
+    st.caption(
+        f'当前测算：{money(PRODUCT["unit_price"])}/支 × '
+        f'{PRODUCT["daily_units"]}支/天 × {selected_days}天'
     )
 
 with right:
@@ -666,123 +862,142 @@ with right:
         participate_care=participate_care
     )
 
-    st.markdown('<div class="section-eyebrow">PAYMENT PATH</div>', unsafe_allow_html=True)
-    st.markdown('<div class="section-title">四重保障支付路径</div>', unsafe_allow_html=True)
+    reductions = get_reductions(result)
+    total_reduction = cumulative_reduction(result)
 
     st.markdown(
-        f"""
-        <div class="layer-flow">
+        f'<div class="path-head">'
+        f'<div><div class="section-eyebrow">FOUR-LAYER PATH</div>'
+        f'<div class="section-title" style="margin-bottom:0;">四重保障路径下预计可减免费用</div></div>'
+        f'<div class="units-pill">{selected_days}天 · 共 {result["用药支数"]} 支</div>'
+        f'</div>',
+        unsafe_allow_html=True
+    )
+
+    st.markdown(
+        f'''<div class="layer-flow">
           <div class="layer-card card-blue">
             <div class="layer-index">LAYER 01</div>
             <div class="layer-name">基本医保</div>
-            <div class="layer-value">{money(result["基本医保支付"])}</div>
-            <div class="layer-note">当前按每支固定支付 {money(policy["basic"]["fixed_pay_per_unit"])}</div>
+            <div class="layer-caption">预计可减免费用</div>
+            <div class="layer-value">{money(reductions["基本医保"])}</div>
+            <div class="layer-note">当前按每支 {money(policy["basic"]["fixed_pay_per_unit"])} 测算</div>
           </div>
           <div class="layer-card card-gold">
             <div class="layer-index">LAYER 02</div>
             <div class="layer-name">大病医保</div>
-            <div class="layer-value">{money(result["大病医保支付"])}</div>
-            <div class="layer-note">结合此前年度累计费用计算本次增量保障</div>
+            <div class="layer-caption">预计可减免费用</div>
+            <div class="layer-value">{money(reductions["大病医保"])}</div>
+            <div class="layer-note">结合年度累计基础计算本次增量减免</div>
           </div>
           <div class="layer-card card-purple">
             <div class="layer-index">LAYER 03</div>
             <div class="layer-name">惠民保</div>
-            <div class="layer-value">{money(result["惠民保支付"])}</div>
+            <div class="layer-caption">预计可减免费用</div>
+            <div class="layer-value">{money(reductions["惠民保"])}</div>
             <div class="layer-note">{policy["hmb"]["name"]}</div>
           </div>
           <div class="layer-card card-green">
             <div class="layer-index">LAYER 04</div>
             <div class="layer-name">福享关爱</div>
-            <div class="layer-value">{money(result["福享关爱支付"])}</div>
-            <div class="layer-note">无免赔额；后台项目参数计算</div>
+            <div class="layer-caption">预计可减免费用</div>
+            <div class="layer-value">{money(reductions["福享关爱"])}</div>
+            <div class="layer-note">无免赔额；按后台项目参数测算</div>
           </div>
-        </div>
-        """,
+        </div>''',
         unsafe_allow_html=True
     )
+
+    daily_pay = result["日均药品自付"]
+    final_pay = result["最终药品自付"]
 
     st.markdown(
-        f"""
-        <div class="final-panel">
-          <div class="final-top">
-            <div>
-              <div class="final-label">当前 {selected_days} 天情景 · 最终思福妥药品自付</div>
-              <div class="final-value">{money(result["最终药品自付"])}</div>
-            </div>
-            <div class="final-meta">
-              <span>日均自付<br><strong>{money(result["日均药品自付"])}</strong></span>
-              <span>综合保障<br><strong>{result["综合保障比例"]:.1%}</strong></span>
-              <span>累计保障<br><strong>{money(result["总保障金额"])}</strong></span>
-            </div>
+        f'''<div class="result-panel"><div class="result-grid">
+          <div class="metric-primary">
+            <div class="metric-label">日均支付</div>
+            <div class="metric-value-primary">{money(daily_pay)}</div>
+            <div class="metric-note">{selected_days}天治疗周期 · 平均每天患者支付</div>
           </div>
-        </div>
-        """,
+          <div class="metric-secondary">
+            <div class="metric-label">最终支付</div>
+            <div class="metric-value">{money(final_pay)}</div>
+            <div class="metric-note">四重保障叠加后的患者药品支付</div>
+          </div>
+          <div class="metric-secondary">
+            <div class="metric-label">累计减免</div>
+            <div class="metric-value">{money(total_reduction)}</div>
+            <div class="metric-note">四层预计减免费用合计</div>
+          </div>
+        </div></div>''',
         unsafe_allow_html=True
-    )
-
-    # 自付逐层变化
-    path_df = pd.DataFrame({
-        "阶段": [
-            "原始药品费用",
-            "基本医保后",
-            "大病医保后",
-            "惠民保后",
-            "福享关爱后"
-        ],
-        "患者药品自付": [
-            result["思福妥药品费用"],
-            result["医保后药品自付"],
-            result["大病后药品自付"],
-            result["惠民保后药品自付"],
-            result["最终药品自付"]
-        ]
-    })
-
-    stage_order = path_df["阶段"].tolist()
-
-    bars = alt.Chart(path_df).mark_bar(
-        size=24,
-        cornerRadiusEnd=5
-    ).encode(
-        y=alt.Y(
-            "阶段:N",
-            sort=stage_order,
-            title=None,
-            axis=alt.Axis(labelFontSize=12, labelColor="#475467")
-        ),
-        x=alt.X(
-            "患者药品自付:Q",
-            title="患者药品自付（元）",
-            axis=alt.Axis(grid=True, gridColor="#EDF1F5", titleColor="#667085")
-        ),
-        tooltip=[
-            alt.Tooltip("阶段:N"),
-            alt.Tooltip("患者药品自付:Q", format=",.0f")
-        ]
-    )
-
-    text = alt.Chart(path_df).mark_text(
-        align="left",
-        dx=6,
-        fontSize=11,
-        color="#475467"
-    ).encode(
-        y=alt.Y("阶段:N", sort=stage_order),
-        x="患者药品自付:Q",
-        text=alt.Text("患者药品自付:Q", format=",.0f")
-    )
-
-    st.altair_chart(
-        (bars + text).properties(height=230),
-        use_container_width=True
     )
 
 # ----------------------------------------------------------
-# 8. 情景对比
+# 10. 日均治疗费用瀑布图
+# ----------------------------------------------------------
+st.divider()
+st.markdown('<div class="section-eyebrow">DAILY PAYMENT WATERFALL</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-title">不同支付情景下日均治疗费用对比</div>', unsafe_allow_html=True)
+
+waterfall_df = build_daily_waterfall(result)
+waterfall_order = ["原始日均", "基本医保", "大病医保", "惠民保", "福享关爱", "最终日均"]
+
+wf_bars = alt.Chart(waterfall_df).mark_bar(
+    size=46,
+    cornerRadiusTopLeft=4,
+    cornerRadiusTopRight=4
+).encode(
+    x=alt.X(
+        "阶段:N",
+        sort=waterfall_order,
+        title=None,
+        axis=alt.Axis(labelAngle=0, labelFontSize=12, labelColor="#475467")
+    ),
+    y=alt.Y(
+        "下界:Q",
+        title="日均患者支付（元/天）",
+        axis=alt.Axis(grid=True, gridColor="#EDF1F5", titleColor="#667085")
+    ),
+    y2="上界:Q",
+    color=alt.Color(
+        "类型:N",
+        scale=alt.Scale(
+            domain=["起始", "减免", "最终"],
+            range=["#8DA9C4", "#6E8FB2", "#153B63"]
+        ),
+        legend=None
+    ),
+    tooltip=[
+        alt.Tooltip("阶段:N"),
+        alt.Tooltip("金额:Q", title="金额", format=",.0f"),
+        alt.Tooltip("类型:N")
+    ]
+)
+
+wf_labels = alt.Chart(waterfall_df).mark_text(
+    dy=-9,
+    fontSize=11,
+    fontWeight="bold",
+    color="#475467"
+).encode(
+    x=alt.X("阶段:N", sort=waterfall_order),
+    y=alt.Y("上界:Q"),
+    text="标签:N"
+)
+
+st.altair_chart(
+    (wf_bars + wf_labels).properties(height=330),
+    use_container_width=True
+)
+
+st.caption("从原始日均费用开始，依次扣除四层预计减免，得到最终日均支付。")
+
+# ----------------------------------------------------------
+# 11. 3 / 7 / 14天支付情景：只保留核心数据
 # ----------------------------------------------------------
 st.divider()
 st.markdown('<div class="section-eyebrow">SCENARIO COMPARISON</div>', unsafe_allow_html=True)
-st.markdown('<div class="section-title">3 / 7 / 14 天支付情景对比</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-title">3 / 7 / 14 天支付情景</div>', unsafe_allow_html=True)
 
 compare_rows = [
     calculate_scenario(
@@ -798,131 +1013,86 @@ compare_rows = [
 ]
 compare_df = pd.DataFrame(compare_rows)
 
-c1, c2, c3 = st.columns(3)
-for col, d in zip([c1, c2, c3], PRODUCT["scenarios"]):
+scenario_cols = st.columns(3)
+for col, d in zip(scenario_cols, PRODUCT["scenarios"]):
     row = compare_df.loc[compare_df["支付测算周期"] == d].iloc[0]
+    reduction = max(row["思福妥药品费用"] - row["最终药品自付"], 0.0)
     with col:
         st.markdown(
-            f"""
-            <div class="panel">
-              <div class="section-eyebrow">{d} DAYS</div>
-              <div style="font-size:13px;color:#667085;margin-bottom:5px;">最终药品自付</div>
-              <div style="font-size:27px;font-weight:900;color:#153B63;">{money(row["最终药品自付"])}</div>
-              <div style="font-size:11px;color:#7C8795;margin-top:7px;">
-                日均 {money(row["日均药品自付"])}/天 · 保障 {row["综合保障比例"]:.1%}
+            f'''<div class="scenario-card">
+              <div class="scenario-days">{d} DAYS · {int(row["用药支数"])} 支</div>
+              <div style="font-size:11px;color:#667085;margin-top:5px;">日均支付</div>
+              <div class="scenario-daily">{money(row["日均药品自付"])}/天</div>
+              <div class="scenario-meta">
+                最终支付：{money(row["最终药品自付"])}<br>
+                累计减免：{money(reduction)}
               </div>
-            </div>
-            """,
+            </div>''',
             unsafe_allow_html=True
         )
 
-tab1, tab2 = st.tabs(["日均自付趋势", "详细支付明细"])
+summary_df = pd.DataFrame([
+    {
+        "治疗周期（天）": int(row["支付测算周期"]),
+        "支数": int(row["用药支数"]),
+        "原始药品费用": row["思福妥药品费用"],
+        "最终支付": row["最终药品自付"],
+        "日均支付": row["日均药品自付"],
+        "累计减免": max(row["思福妥药品费用"] - row["最终药品自付"], 0.0),
+    }
+    for _, row in compare_df.iterrows()
+])
 
-with tab1:
-    trend_df = compare_df[["支付测算周期", "日均药品自付"]].copy()
-    trend_df["周期"] = trend_df["支付测算周期"].astype(str) + "天"
-
-    line = alt.Chart(trend_df).mark_line(
-        point=alt.OverlayMarkDef(size=95, filled=True),
-        strokeWidth=3
-    ).encode(
-        x=alt.X(
-            "周期:N",
-            sort=["3天", "7天", "14天"],
-            title=None,
-            axis=alt.Axis(labelFontSize=12, labelColor="#475467")
-        ),
-        y=alt.Y(
-            "日均药品自付:Q",
-            title="日均药品自付（元/天）",
-            axis=alt.Axis(grid=True, gridColor="#EDF1F5", titleColor="#667085")
-        ),
-        tooltip=[
-            "周期:N",
-            alt.Tooltip("日均药品自付:Q", format=",.0f")
-        ]
-    )
-    st.altair_chart(line.properties(height=270), use_container_width=True)
-
-with tab2:
-    show_cols = [
-        "支付测算周期",
-        "用药支数",
-        "思福妥药品费用",
-        "基本医保支付",
-        "大病医保支付",
-        "惠民保支付",
-        "福享关爱支付",
-        "最终药品自付",
-        "日均药品自付",
-        "综合保障比例"
-    ]
-    st.dataframe(
-        compare_df[show_cols].style.format({
-            "思福妥药品费用": "¥{:,.0f}",
-            "基本医保支付": "¥{:,.0f}",
-            "大病医保支付": "¥{:,.0f}",
-            "惠民保支付": "¥{:,.0f}",
-            "福享关爱支付": "¥{:,.0f}",
-            "最终药品自付": "¥{:,.0f}",
-            "日均药品自付": "¥{:,.0f}",
-            "综合保障比例": "{:.1%}"
-        }),
-        use_container_width=True,
-        hide_index=True
-    )
+st.dataframe(
+    summary_df.style.format({
+        "原始药品费用": "¥{:,.0f}",
+        "最终支付": "¥{:,.0f}",
+        "日均支付": "¥{:,.0f}",
+        "累计减免": "¥{:,.0f}",
+    }),
+    use_container_width=True,
+    hide_index=True
+)
 
 # ----------------------------------------------------------
-# 9. 政策口径
+# 12. 政策说明
+# ----------------------------------------------------------
+with st.expander(f"{province} · {city}｜查看当前录入政策说明", expanded=False):
+    st.markdown(f"**基本医保｜中央职场**  \n{policy['basic']['note']}")
+    st.markdown(f"**大病医保｜Local MA给到**  \n{policy['major']['note']}")
+    st.markdown(f"**惠民保｜同步政策信息**  \n{policy['hmb']['note']}")
+    st.markdown(f"**福享关爱｜项目规则**  \n{policy['care']['note']}")
+
+    if not (
+        policy["basic"]["verified"]
+        and policy["major"]["verified"]
+        and policy["hmb"]["verified"]
+        and policy["care"]["verified"]
+    ):
+        st.warning("部分参数仍处于待核验状态，正式使用前需完成政策/项目口径确认。")
+
+# ----------------------------------------------------------
+# 13. 工作可视化
 # ----------------------------------------------------------
 st.divider()
-st.markdown('<div class="section-eyebrow">POLICY REFERENCE</div>', unsafe_allow_html=True)
-st.markdown('<div class="section-title">当前地区政策口径</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-eyebrow">WORK VISUALIZATION</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-title">工作可视化</div>', unsafe_allow_html=True)
 
-with st.expander(f"{province} · {city}｜查看后台口径与核验状态", expanded=False):
-    p1, p2 = st.columns(2)
+work_df = pd.DataFrame([
+    {"工作项": "思福妥模拟计算器", "当前可视化": "四重保障支付测算 / 3·7·14天情景"},
+    {"工作项": "双坦CHI PAP", "当前可视化": "项目名称已纳入；具体指标待后续接入"},
+    {"工作项": "2026思福妥VBP集采-财务影响分析", "当前可视化": "项目名称已纳入；具体指标待后续接入"},
+])
 
-    with p1:
-        st.markdown(
-            f"""
-            <div class="policy-row">
-              <div class="policy-key">基本医保</div>
-              <div class="policy-value">{policy["basic"]["note"]}</div>
-            </div>
-            <div class="policy-row">
-              <div class="policy-key">大病医保</div>
-              <div class="policy-value">{policy["major"]["note"]}</div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-    with p2:
-        st.markdown(
-            f"""
-            <div class="policy-row">
-              <div class="policy-key">惠民保</div>
-              <div class="policy-value">{policy["hmb"]["note"]}</div>
-            </div>
-            <div class="policy-row">
-              <div class="policy-key">福享关爱</div>
-              <div class="policy-value">{policy["care"]["note"]}</div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-    if not policy["hmb"]["verified"] or not policy["care"]["verified"]:
-        st.warning("当前惠民保/福享关爱仍含待核验参数，正式使用前需用Local及项目正式条款确认。")
+st.dataframe(work_df, use_container_width=True, hide_index=True)
 
 # ----------------------------------------------------------
-# 10. Disclaimer
+# 14. Disclaimer
 # ----------------------------------------------------------
 st.markdown("""
 <div class="notice" style="margin-top:16px;">
-<b>Disclaimer：</b>
-本工具仅供内部培训、政策认知与支付路径模拟使用，不构成医保结算、保险理赔或临床用药建议。
-实际支付结果可能因患者参保身份、在职/退休状态、医院等级、门诊/住院场景、特殊人群政策、
-年度封顶线、实际累计费用及当地实时政策而存在差异。所有结果以当地医保部门、保险产品正式条款及实际结算为准。
+<b>免责声明：</b>
+本工具仅模拟测算在四重保障支付下“思福妥”涉及的自付费用，患者真实治疗费用以医院实际结算为准。
+目前仅呈现个别城市的Pilot，后续会持续更新。
 </div>
 """, unsafe_allow_html=True)
